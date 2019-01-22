@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	1. <mapper namespace="패키지명.인터페이스명">
+	2. select 문장은 반드시 resultType을 기술해야한다.
+	   select return type이 int형이면 'select *'==> 'select count(*)'로 바꾼다.
+	3. insert, update, delete 문장은 parameterType이 필수이다.
+	   resultType은 int형이며, mybatis가 알아서 성공,실패 여부의 결과값을 넘긴다.
+	4. parameterType, reultType이 클래스타입인 경우 패키지명.클래스명을 기술한다.
+	5. 문장의 끝에 ';'을 붙이지 않는다.
+	6. 파라미터값이 2개 이상일 때는 parameterType을 java.util.Map 또는 VO로 받는다.
+	7. 파라미터 일반변수명은 반드시 일치 해야한다. 예) #{strId}
+	8. <id="식별자">는 유일해야 하며, 인터페이스의 메소드명이 와야 한다.
+	      따라서 인터페이스 메소드 갯수만큼 Mapper도 작성해야 한다.
+	9. preparedStatment의 '?' 대신에 pstmt에서 set한 변수명이 온다 ==> #{변수명} 
+-->
+<mapper namespace="com.mvc.mybatis.persistence.MemberDAO">
+	<!--중복확인, 정보수정, 정보삭제  -->
+	<select id="idCheck" resultType="int">
+		SELECT COUNT(*) FROM mvc_member_tbl WHERE id=#{strId}
+	</select>
+	
+	<!-- 회원가입  -->
+	<insert id="insertMember" parameterType="com.mvc.mybatis.persistence.MemberDAO">
+		INSERT INTO mvc_member_tbl(id,pwd,name,jumin1,jumin2,hp,email,reg_date) 
+		VALUES(#{id},#{pwd},#{name},#{jumin1},#{jumin2},#{hp},#{email},#{reg_date})
+	</insert>
+	
+	<!-- 로그인처리,회원정보수정시 비밀번호 인증, 회원정보탈퇴시 비밀번호 인증  -->
+	<!--#{map의 key}  -->
+	<select id="idpwdCheck" parameterType="java.util.Map" resultType="int">
+		SELECT count(*) FROM mvc_member_tbl WHERE id=#{strId} AND pwd=#{strPwd}
+	</select>
+	
+	<!--회원정보 상세페이지  -->
+	<select id="getMemberInfo" parameterType="String" resultType="com.mvc.mybatis.persistence.MemberDAO">
+		SELECT * FROM mvc_member_tbl WHERE id=#{strId}
+	</select>
+	
+	<!--회원정보 수정  -->
+	<!--id에 해당하는 한 사람의 회원정보가 존재하면 MemberVO의 getter로 값을 가져온다.  -->
+	<update id="updateMem" parameterType="com.mvc.mybatis.persistence.MemberDAO">
+		UPDATE mvc_member_tbl SET pwd=#{pwd},hp=#{hp},email=#{email} WHERE id=#{id}
+	</update>
+	
+	<!--회원 삭제  -->
+	<delete id="deleteMem" parameterType="String">
+		DELETE mvc_member_tbl WHERE id=#{strId}
+	</delete>
+</mapper>
